@@ -6,50 +6,50 @@ import * as apiClient from "../../helpers/ApiHelpers";
 import { useGlobalState } from '../GlobalStateContext';
 
 const Details = () => {
-  const { albumId, photoId: photoIdParam, albumCaption } = useParams();
+  const { albumId:albumIdParam, photoId: photoIdParam, albumCaption } = useParams();
   const [photos, setPhotos] = useState([]);
   const [photoId, setPhotoId] = useState(parseInt(photoIdParam));
+  const [albumId, setAlbumId] = useState(parseInt(albumIdParam));
   const history = useNavigate();
-  const albumIdParsed = parseInt(albumId);
   const { apiAddress } = useGlobalState();
 
   useEffect(() => {
-    const fetchPhotos = async (photoId) => {
-      if (parseInt(photoId) === 0) {
-        try {
-          const response = await apiClient.getHelper('api/details/random');
-          const randomPhotoId = parseInt(response);
-          fetchRandomPhotoDetails(randomPhotoId);
-        } catch (error) {
-          alert('Could not contact server ' + error);
-        }
+    const initializedAsync = async () => {
+      if (parseInt(albumIdParam) === 0) {
+          await fetchRandomPhotoDetails();
       } else {
-        try {
-          const response = await apiClient.getHelper(`/api/details/${albumIdParsed}`);
-          setPhotos(response);
-          setPhotoId(Number(photoId));
-        } catch (error) {
-          alert('Could not contact server ' + error);
-        }
+          await FetchPhotosByAlbumId(albumIdParam)
       }
-    };
+    }
 
-    const fetchRandomPhotoDetails = async (photoId) => {
-      try {
-        const response = await apiClient.getHelper('api/details/0');
-        setPhotos(response);
-        setPhotoId(Number(photoId));
-      } catch (error) {
-        alert('Could not contact server ' + error);
-      }
-    };
+    initializedAsync();
+  }, [photoIdParam, albumIdParam]);
 
-    fetchPhotos(photoIdParam);
-  }, [photoIdParam, albumIdParsed]);
+  const fetchRandomPhotoDetails = async () => {
+    try {
+      const ph = await apiClient.getHelper('api/details/random');
+      setPhotoId(ph);
+      const al = await apiClient.getHelper(`api/details/albumid/${ph}`);
+      setAlbumId(al);
+      const response = await apiClient.getHelper(`api/details/${al}`);
+      setPhotos(response);
+    } catch (error) {
+      alert('Could not contact server ' + JSON.stringify(error));
+    }
+  };
+
+  const FetchPhotosByAlbumId = async (albumId) => {
+    try {
+      const photos = await apiClient.getHelper(`api/details/${albumId}`);
+      setPhotos(photos);
+    } catch (error) {
+      alert('Could not contact server ' + JSON.stringify(error));
+    }
+  };
 
   const setDetails = (e, photoId) => {
     e.preventDefault();
-    history(`/details/${photoId}/${albumIdParsed}/${albumCaption}`);
+    history(`/details/${photoId}/${albumId}/${albumCaption}`);
     setPhotoId(Number(photoId));
   };
 
@@ -124,7 +124,7 @@ const Details = () => {
                         </PhotoFrame>
                         <p>
                           <a href={`${apiAddress}/Handler/Download/${photoId}/Size=L`}>
-                            <img src="/assets/images/button-download.gif" alt="download this photo" />
+                            <img src="/assets/images/button-download.gif" alt="download" />
                           </a>
                         </p>
                       </td>
