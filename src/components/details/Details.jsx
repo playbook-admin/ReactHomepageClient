@@ -53,6 +53,10 @@ const Details = () => {
     setPhotoId(Number(photoId));
   };
 
+  const getDetailsUrl = (id) => {
+    return `/details/${id}/${albumId.value}/${albumCaption.value}`;
+  };
+
   const getPage = (pid) => {
     const photo = photos.find(p => p.photoID === pid);
     return photo ? photos.indexOf(photo) + 1 : 0;
@@ -70,7 +74,7 @@ const Details = () => {
   const numbers = photos.map((photo, index) => (
     <div key={photo.photoID} style={{ display: 'inline' }}>
       {index + 1 !== page ? (
-        <Link to="#" onClick={(e) => setDetails(e, photo.photoID)}>{index + 1}</Link>
+        <Link to={getDetailsUrl(photo.photoID)} onClick={(e) => setDetails(e, photo.photoID)}>{index + 1}</Link>
       ) : (
         <span>{index + 1}</span>
       )}
