@@ -49,12 +49,12 @@ const Details = () => {
 
   const setDetails = (e, photoId) => {
     e.preventDefault();
-    history(`/details/${photoId}/${albumId}/${albumCaption}`);
+    history(getDetailsUrl(photoId));
     setPhotoId(Number(photoId));
   };
 
   const getDetailsUrl = (id) => {
-    return `/details/${id}/${albumId.value}/${albumCaption.value}`;
+    return `/details/${id}/${albumId}/${albumCaption}`;
   };
 
   const getPage = (pid) => {
